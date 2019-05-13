@@ -8,37 +8,35 @@ class Bottles
   end
 
   def verse(number)
-    bottle_number = bottle_number_for(number)
-    bottle_number_successor = bottle_number_for(bottle_number.successor)
+    bottle_number = BottleNumber.for(number)
 
-    "#{bottle_number.quantity.capitalize} #{bottle_number.container} of beer on the wall, " +
-    "#{bottle_number.quantity} #{bottle_number.container} of beer.\n" +
+    "#{bottle_number} of beer on the wall, ".capitalize +
+    "#{bottle_number} of beer.\n" +
     "#{bottle_number.action}, " +
-    "#{bottle_number_successor.quantity} #{bottle_number_successor.container} of beer on the wall.\n"
+    "#{bottle_number.successor} of beer on the wall.\n"
   end
-
-  private
-
-  def bottle_number_for(number)
-    case number
-    when 0
-      BottleNumber0.new(number)
-    when 1
-      BottleNumber1.new(number)
-    else
-      BottleNumber.new(number)
-    end
-  end
-end
+ end
 
 class BottleNumber
   attr_reader :number
+  def self.for(number)
+    begin
+      const_get("BottleNumber#{number}")
+    rescue NameError
+      BottleNumber
+    end.new(number)
+  end
+
   def initialize(number)
     @number = number
   end
 
+  def to_s
+    "#{quantity} #{container}"
+  end
+
   def successor
-    number - 1
+    BottleNumber.for(number - 1)
   end
 
   def action
@@ -64,7 +62,7 @@ class BottleNumber0 < BottleNumber
   end
 
   def successor
-    99
+    BottleNumber.for(99)
   end
 
   def action
@@ -79,5 +77,15 @@ class BottleNumber1 < BottleNumber
 
   def container
     "bottle"
+  end
+end
+
+class BottleNumber6 < BottleNumber
+  def quantity
+    "1"
+  end
+
+  def container
+    "six-pack"
   end
 end
